@@ -1,0 +1,135 @@
+# This makes this $PROFILE file the standart one for all
+# If the terminal in your preferred IDE isn't follow the paramaters
+# Open the profile file (type 'Notepad $PROFILE' in the terminal) and just put the path below into it
+# . "C:\Users\teixvibr\OneDrive - B. Braun\Documentos\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+
+# Allow to show file Icons using the module Terminal-Icons
+# to install it, use this command:
+# Install-Module -Name Terminal-Icons -Repository PSGallery -Scope CurrentUser
+# note: need to use a font that enables icons
+# Recommended font: jetbrains mono nerd
+Import-Module Terminal-Icons
+
+# eza is a powerful command to list directories made with rust 
+# it's much more faster and efficient than the standart 'ls' command
+# to install it, use this command:
+# winget install eza-community.eza
+
+# Use eza as a replacement for ls
+function ls {
+	& eza --icons --color=always --group-directories-first --git $args
+}
+# Add a 'll' for the detailed list view
+function ll {
+	& eza --icons --color=always --group-directories-first --git --long --header $args
+}
+
+# Make 'touch' work like Linux
+Set-Alias -Name touch -Value New-Item
+
+# Multi-level directory navigation shortcuts
+function cd-up1 { cd ..\ }
+function cd-up2 { cd ..\.. }
+function cd-up3 { cd ..\..\.. }
+Set-Alias -Name .. -Value cd-up1
+Set-Alias -Name ... -Value cd-up2
+Set-Alias -Name .... -Value cd-up3
+
+# Sudo for Windows (requires gsudo)
+# to install it, use this command:
+# winget install gerardog.gsudo
+# This allows you to type 'sudo' just like in Linux
+if (Get-Command gsudo -ErrorAction SilentlyContinue) {
+	Set-Alias -Name sudo -Value gsudo
+}
+
+# Allow to browse auto-complete options using tab
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+
+# Enable Fish-style ghost text predictions based on history
+# This makes the terminal feel exactly like fish in Linux
+Set-PSReadLineOption -PredictionSource History
+Set-PSReadLineOption -PredictionViewStyle InlineView
+
+# Helper function to get the current Git branch name
+# This is used in the prompt to show context inside projects
+function Get-GitBranch {
+	# 2>$null redirects error messages to "nowhere"
+    if (git rev-parse --is-inside-work-tree 2>$null) {
+        $branch = git symbolic-ref --short HEAD 2>$null
+        if (!$branch) {
+			$branch = git rev-parse --short HEAD 2>$null
+        }
+        
+        # Only return the string if a branch name was actually found
+        if ($branch) {
+            return " [$($branch.Trim())]"
+        }
+    }
+    return ""
+}
+
+# Run fastfetch on startup, it shows a snapchat of the device
+# to install it, use this command
+# winget install fastfetch
+fastfetch
+
+# Alias for quick navigation to GitHub projects
+# just change the string to your projects path
+function projects { 
+	Set-Location "C:\Users\teixvibr\OneDrive - B. Braun\Documentos\GitHub\" 
+}
+
+# Custom colors need to be ANSI color codes
+$esc = [char]27
+$BbraunGreen  = "$($esc)[38;2;0;179;130m"
+$BbraunGreenSoft  = "$($esc)[38;2;180;235;225m"
+$BbraunPurple = "$($esc)[38;2;114;29;133m"
+$Underline    = "$($esc)[4m"
+$Reset        = "$($esc)[0m"
+
+# Create fish-style multiline prompt
+function prompt {
+		$time = Get-Date -Format "HH:mm:ss"
+	$user = $env:USERNAME
+	$computer = $env:COMPUTERNAME
+	$currentPath = (Get-Location).Path
+	$gitBranch = Get-GitBranch
+	
+	# Shows the branch in a softer green if inside a git repo
+    if ($gitBranch) {
+		Write-Host "$BbraunGreenSoft$gitBranch$Reset"
+    }
+
+	# Line 1: [Time] User@PC Path
+
+	# If you want to use a standart color for one of the paramaters:
+	# Write-Host "[$time] " -NoNewline -ForegroundColor Gray
+	# Write-Host "$user@$computer " -NoNewline -ForegroundColor Green
+	# Write-Host "$currentPath" -ForegroundColor Purple
+
+	# If you want to use a custom color for one of the paramaters:
+	# Write-Host "$BbraunGreen[$time]$Reset " -NoNewline
+	# Write-Host "$BbraunGreen$user@$computer$Reset " -NoNewline
+	# Write-Host "$BbraunPurple$currentPath$Reset"
+
+	Write-Host "[$time] " -NoNewline -ForegroundColor Gray
+	Write-Host "$BbraunPurple$user@$computer$Reset " -NoNewline
+	Write-Host "$BbraunGreen$currentPath$Reset"
+
+	# Line 2: input line
+	# this is what appears before a command
+	return "> "
+}
+
+# Colorize the command line as you type
+Set-PSReadLineOption -Colors @{
+	Command            = $BbraunGreen
+	String             = "Blue"
+	# This makes arguments/paths coloured and underlined like in fish
+	Default            = "$($BbraunGreenSoft)$($Underline)"
+	Variable           = "Magenta"
+	Parameter          = "Green"
+	Type               = "Yellow"
+	Number             = "Magenta"
+}
