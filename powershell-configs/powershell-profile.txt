@@ -114,7 +114,9 @@ function prompt {
 	# Write-Host "$BbraunPurple$currentPath$Reset"
 
 	Write-Host "[$time] " -NoNewline -ForegroundColor Gray
-	Write-Host "$BbraunPurple$user@$computer$Reset " -NoNewline
+	Write-Host "$BbraunPurple$user$Reset" -NoNewline
+	Write-Host "@" -NoNewline
+	Write-Host "$BbraunPurple$computer$Reset " -NoNewline
 	Write-Host "$BbraunGreen$currentPath$Reset"
 
 	# Line 2: input line
