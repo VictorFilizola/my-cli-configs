@@ -93,7 +93,7 @@ function prompt {
 		$time = Get-Date -Format "HH:mm:ss"
 	$user = $env:USERNAME
 	$computer = $env:COMPUTERNAME
-	$currentPath = (Get-Location).Path
+	$currentpath = (get-location).path.replace('\','/')
 	$gitBranch = Get-GitBranch
 	
 	# Shows the branch in a softer green if inside a git repo
@@ -123,9 +123,6 @@ function prompt {
 	# this is what appears before a command
 	return "> "
 }
-
-# POSIX positioning for directory pathing
-Set-PSReadLineOption -DirectoryCompleteStyle Posix
 
 # Colorize the command line as you type
 Set-PSReadLineOption -Colors @{
