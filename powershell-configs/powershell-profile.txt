@@ -124,6 +124,9 @@ function prompt {
 	return "> "
 }
 
+# POSIX positioning for directory pathing
+Set-PSReadLineOption -DirectoryCompleteStyle Posix
+
 # Colorize the command line as you type
 Set-PSReadLineOption -Colors @{
 	Command            = $BbraunGreen
